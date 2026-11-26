@@ -1,0 +1,43 @@
+diff --git a/runner/src/snes/ppu.c b/runner/src/snes/ppu.c
+index 581aa83d..7dc7a3b3 100644
+--- a/runner/src/snes/ppu.c
++++ b/runner/src/snes/ppu.c
+@@ -223,6 +223,7 @@ void ppu_rb_residue_set(Ppu *ppu, const PpuRollbackResidue *in) {
+ // (bit0=BG1 .. bit3=BG4, bit4=OBJ). Host-only render filter — never serialized,
+ // never affects guest state. Unset/0xff = all layers (normal).
+ uint8_t g_snes_ppu_dbg_layer_mask = 0xff;
++uint8_t g_snes_ppu_report_pal = 0;
+ 
+ void PpuBeginDrawing(Ppu *ppu, uint8_t *pixels, size_t pitch, uint32_t render_flags) {
+   static bool mask_init;
+@@ -3685,6 +3686,7 @@ uint8_t ppu_read(Ppu* ppu, uint8_t adr) {
+     }
+     case 0x3f: {
+       uint8_t val = 0x3; // ppu2 version (4 bit), bit 4: ntsc/pal
++      if (g_snes_ppu_report_pal) val |= 0x10;
+       val |= ppu->countersLatched << 6;
+       val |= ppu->evenFrame << 7;
+       ppu->countersLatched = false; // TODO: only when ppulatch is set
+@@ -3693,7 +3695,8 @@ uint8_t ppu_read(Ppu* ppu, uint8_t adr) {
+       return val;
+     }
+     default: {
+-      assert(0);
++      /* Local patch: reads of write-only PPU registers are open bus on
++       * hardware (Terranigma does this); no assert in Debug builds. */
+       return 0;
+     }
+   }
+diff --git a/runner/src/snes/ppu.h b/runner/src/snes/ppu.h
+index 45b90e80..dc288ab6 100644
+--- a/runner/src/snes/ppu.h
++++ b/runner/src/snes/ppu.h
+@@ -433,6 +433,8 @@ static inline const uint16_t *PpuRenderVram(const Ppu *ppu) {
+   return ppu->renderVram ? ppu->renderVram : ppu->vram;
+ }
+ extern uint8_t g_snes_ppu_dbg_layer_mask;
++/* Nonzero: $213F bit 4 reports PAL (for region-locked PAL ROMs). Default 0. */
++extern uint8_t g_snes_ppu_report_pal;
+ #define IS_SCREEN_ENABLED(ppu, sub, layer) \
+   (ppu->screenEnabled[sub] & g_snes_ppu_dbg_layer_mask & (1 << layer))
+ #define IS_SCREEN_WINDOWED(ppu, sub, layer) (ppu->screenWindowed[sub] & (1 << layer))

@@ -35,6 +35,17 @@
 #include "game_rtl.h"
 
 #include "beam_frame_driver.h"
+#include "snes/ppu.h"
+#include "common_rtl.h"
+
+#include "terranigma_widescreen.h"
+
+/* The German release is PAL and refuses to boot ("This game pak is not
+ * designed for your Super Famicom or Super NES") unless $213F bit 4 reads PAL. */
+static void GameInitialize(void)
+{
+    g_snes_ppu_report_pal = 1;
+}
 
 void GameRunOneFrame(void)
 {
@@ -43,7 +54,9 @@ void GameRunOneFrame(void)
 
 void GameDrawPpuFrame(void)
 {
-    snes_beam_frame_driver_draw_ppu_frame();
+    /* PreparePpuFrame hat PpuSetExtraSpace schon gesetzt (Policies zurueckgesetzt). */
+    TerraWsApplyPolicy(g_ppu);
+    TerraWsDrawFrame(g_ppu);
 }
 
 void GameSessionReset(void)
@@ -57,7 +70,7 @@ void GameSessionReset(void)
 
 const RtlGameInfo kGameInfo = {
     .title = "terranigma",
-    .initialize = NULL,
+    .initialize = &GameInitialize,
     .run_frame = &GameRunOneFrame,
     .draw_ppu_frame = &GameDrawPpuFrame,
     .save_name_prefix = "save",

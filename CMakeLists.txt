@@ -27,6 +27,34 @@ if(NOT EXISTS "${SNESRECOMP_ROOT}/runner/runner.cmake")
         "snesrecomp submodule missing at ${SNESRECOMP_ROOT}.\n"
         "Run: git submodule update --init --recursive")
 endif()
+
+# Local framework patches (patches/*.patch): region flag for the PAL ROM and an
+# open-bus PPU read. They are not in upstream snesrecomp, so they are applied
+# here, once, before the framework is compiled. Already-applied patches are
+# detected with a reverse check and skipped.
+find_program(TERRANIGMA_GIT git)
+file(GLOB TERRANIGMA_FRAMEWORK_PATCHES "${CMAKE_SOURCE_DIR}/patches/snesrecomp-*.patch")
+foreach(_patch IN LISTS TERRANIGMA_FRAMEWORK_PATCHES)
+    get_filename_component(_patch_name "${_patch}" NAME)
+    if(NOT TERRANIGMA_GIT)
+        message(FATAL_ERROR
+            "git is needed to apply ${_patch_name} to snesrecomp.\n"
+            "Run once: bash tools/apply_framework_patches.sh")
+    endif()
+    execute_process(COMMAND "${TERRANIGMA_GIT}" apply --check --reverse "${_patch}"
+        WORKING_DIRECTORY "${SNESRECOMP_ROOT}" RESULT_VARIABLE _applied
+        OUTPUT_QUIET ERROR_QUIET)
+    if(NOT _applied EQUAL 0)
+        execute_process(COMMAND "${TERRANIGMA_GIT}" apply --ignore-whitespace "${_patch}"
+            WORKING_DIRECTORY "${SNESRECOMP_ROOT}" RESULT_VARIABLE _rc ERROR_VARIABLE _err)
+        if(NOT _rc EQUAL 0)
+            message(FATAL_ERROR
+                "Could not apply ${_patch_name} to ${SNESRECOMP_ROOT}:\n${_err}\n"
+                "The framework revision must match framework_pins.txt.")
+        endif()
+        message(STATUS "Applied framework patch ${_patch_name}")
+    endif()
+endforeach()
 # Mod packages are part of every project, not an option. The launcher's Mods
 # page, the .snesmod loader, the trusted-plugin registry and netplay's mod-set
 # gate all hang off this one switch; a build without it cannot exchange mods
@@ -41,6 +69,7 @@ add_executable(TerranigmaSNESRecomp
     src/main.c
     src/host_contract.c
     src/game_rtl.c
+    src/terranigma_widescreen.c
     src/gen_stubs.c
 )
 

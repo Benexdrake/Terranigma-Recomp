@@ -27,6 +27,7 @@
 
 #include "host_main.h"
 #include "game_rtl.h"
+#include "terranigma_widescreen.h"
 #include "snesrecomp_rom_identity.h"  /* generated from rom_identity.txt */
 
 #ifndef __ANDROID__
@@ -42,6 +43,19 @@
 #define SNES_GAME_VERSION "dev"
 #endif
 
+/* 16:9 per Mod (src/terranigma_widescreen.c): 398 Spalten wenn aktiv, sonst 256. */
+static void TerranigmaPrepareFrame(int dw, int dh, int *fw, int *fh)
+{
+    (void)dw; (void)dh;
+    *fw = TerraWsFrameWidth();
+    *fh = 224;
+}
+
+static int TerranigmaWindowBaseWidth(int frame_w)
+{
+    return frame_w;
+}
+
 static const SnesDesktopHostGame kGameHost = {
     .display_name        = "Terranigma",
     .window_title        = "Terranigma",
@@ -53,6 +67,10 @@ static const SnesDesktopHostGame kGameHost = {
     .build_version       = SNES_GAME_VERSION,
     .game_info           = &kGameInfo,
     .num_players         = 1,
+    .widescreen_supported = 1,
+    .native_widescreen   = 1,
+    .prepare_frame       = &TerranigmaPrepareFrame,
+    .window_base_width   = &TerranigmaWindowBaseWidth,
     /* Battery-backed SRAM shows the launcher's SAVES panel. Leave NULL for a
      * title without one. The path is exe-relative. */
     .sram_path           = "saves/save.srm",

@@ -25,3 +25,7 @@
 /input.ini
 
 .DS_Store
+
+# Local debug output
+*.log
+/terra_ws.log

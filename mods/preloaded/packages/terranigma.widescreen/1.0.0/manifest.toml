@@ -1,0 +1,48 @@
+format_version = 1
+id = "terranigma.widescreen"
+version = "1.0.0"
+name = "Terranigma Widescreen 16:9"
+author = "RecompDev"
+description = "Renders Terranigma in 16:9 (398x224). The simulation stays 256 wide; only the picture is widened."
+license = "MIT"
+resolver = "declarative"
+save_compatibility = "shared"
+
+[[target]]
+game_id = "terranigma-deu"
+rom_sha256 = "613cd1a31eaded18648168bd7453a57830ca9a6f3c10de5154625436fbd49556"
+
+[[feature]]
+id = "widescreen"
+name = "Widescreen 16:9"
+description = "Wide picture. The world, rooms and objects are extended from the game's own map data; menus fall back to a clean clamp."
+group = "Display"
+default_enabled = true
+presentation_only = true
+
+[[option]]
+feature = "widescreen"
+id = "edge_policy"
+label = "Side margins"
+type = "choice"
+default = "natural"
+
+[[option.choice]]
+value = "clamp"
+label = "Clamp (every margin shows the edge column)"
+
+[[option.choice]]
+value = "natural"
+label = "World-aware (recommended)"
+
+[[option.choice]]
+value = "mirror"
+label = "Mirror"
+
+[[option.choice]]
+value = "repeat"
+label = "Repeat"
+
+[[plugin]]
+feature = "widescreen"
+id = "terranigma.widescreen"
