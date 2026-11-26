@@ -1,0 +1,26 @@
+# ROM identity for Terranigma — the single source of truth.
+#
+# Read by three consumers, so a revision change is made once, here:
+#   - the build   (CMake generates snesrecomp_rom_identity.h from this file)
+#   - tools/regen.sh
+#   - .github/workflows/release.yml
+#
+# Format is `key = value`, one per line; `#` starts a comment. Values may be
+# quoted. Leaving a digest empty means the build cannot verify a ROM it is
+# handed — it will say so rather than accept it.
+
+display_name    = Terranigma
+rom_file        = Terranigma (Germany) (Rev 1).sfc
+# Every digest of the bare image (copier header stripped), so the Retro
+# catalog can take a submission's identity from this file rather than ask
+# the submitter to hash the ROM again. The build verifies on crc32/sha256.
+expected_crc32  = 6fb8a4df
+expected_md5    = 4f3f3c5504a524a0716b965808709118
+expected_sha1   = 9a64ce79bea16d01ab71b58b11df0bcf0eedd889
+expected_sha256 = 613cd1a31eaded18648168bd7453a57830ca9a6f3c10de5154625436fbd49556
+rom_size        = 4194304
+mapping         = hirom
+region          = DEU
+# What a mod package's [[target]] game_id must name to apply to this title
+# (snesrecomp/docs/MOD_PACKAGES.md). Stable across revisions on purpose.
+game_id         = terranigma-deu

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://recomp.fyi/schema/v1.json",
+  "game": "Terranigma",
+  "system": "SNES",
+  "type": "recomp",
+  "toolchain": "snesrecomp",
+  "status": "exploring",
+  "project": "TerranigmaSNESRecomp",
+  "original": {
+    "region": "DEU",
+    "sha1": "9a64ce79bea16d01ab71b58b11df0bcf0eedd889"
+  }
+}
